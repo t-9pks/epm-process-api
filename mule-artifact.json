@@ -1,0 +1,11 @@
+{
+	"minMuleVersion": "4.4.0",
+	"secureProperties": [
+		"credentialVaultKey",
+		"cloudhub.oAuth.clientId",
+		"cloudhub.oAuth.clientSecret",
+		"anypoint.platform.client_secret",
+		"secure.key",
+		"anypoint.platform.client_id"
+	]
+}
