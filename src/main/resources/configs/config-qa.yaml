@@ -1,0 +1,28 @@
+api:
+  id: "18273082"
+# process API authentication details
+client:
+  id: ''
+  secret: ''
+https:
+  private:
+    port: "8082" 
+retry:
+ count: '2'
+ interval: '30000'
+
+epm:
+   host: "uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com"
+   port: "443"
+   substitutepath: "/HyperionPlanning/rest/v3/applications/UCPLAN/substitutionvariables"
+   jobspath: "/aif/rest/V1/jobs"
+   logspath: "interop/rest/11.1.2.3.600/applicationsnapshots"
+   ruleset: "DLR_GL_UCPLAN,DLR_GL_UCPLAN_BS"   
+   username: "UNIV_EPM_ADMIN@uchicago.edu"  
+smtp :
+  uChicagoHost: "smtp.uchicago.edu"
+  uChicagoPort: "25"
+  fromAddress: "grif-feeds-request@lists.uchicago.edu"   
+  toAddress: "t-9pks@uchicago.edu"
+  subject: "UCPLAN Data Load Status for DATARULE: " 
+  timeout: "60"                                                                                                       

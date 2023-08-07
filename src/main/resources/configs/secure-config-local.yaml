@@ -1,0 +1,14 @@
+keystore:
+  password: "![b65ebHbfsxniXpPuxdLPoQ==]"
+
+ais:
+  sftp:
+    password: "![Z8hhfBvETxThTy4uFX0riaEWGVLy0ogFiFeLFMRCOs8=]"
+    
+  
+  system: 
+    password: "![idC8j6RmxRC/6P6DkMHTAw==]"
+    
+oraclesys:
+  clientId: "![MTznFecN2RMRO9LKOuX28OVltPP4ha55T53JokjPZSI=]"
+  clientSecret: "![C3GeybtrEP2gIhhCUP4qUsQ/R4Bfp7LvgMKO/SxY0NWu1da3pqgBIkdudQCFQ0e8]"

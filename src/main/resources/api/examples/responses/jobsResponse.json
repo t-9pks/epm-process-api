@@ -1,0 +1,178 @@
+{
+    "items": [
+        {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs/781",
+                    "action": "GET"
+                }
+            ],
+            "details": null,
+            "jobId": 781,
+            "jobStatus": "SUCCESS",
+            "logFileName": "/u03/inbox/outbox/logs/UCPLAN_781.log",
+            "outputFileName": null,
+            "processType": "COMM_LOAD_BALANCES",
+            "executedBy": "hapotdar@hcg.com"
+        },
+        {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs/780",
+                    "action": "GET"
+                }
+            ],
+            "details": null,
+            "jobId": 780,
+            "jobStatus": "SUCCESS",
+            "logFileName": "/u03/inbox/outbox/logs/UCPLAN_780.log",
+            "outputFileName": null,
+            "processType": "COMM_LOAD_BALANCES",
+            "executedBy": "hapotdar@hcg.com"
+        },
+        {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs/779",
+                    "action": "GET"
+                }
+            ],
+            "details": null,
+            "jobId": 779,
+            "jobStatus": "FAILED",
+            "logFileName": "/u03/inbox/outbox/logs/UCPLAN_779.log",
+            "outputFileName": null,
+            "processType": "COMM_LOAD_BALANCES",
+            "executedBy": "hapotdar@hcg.com"
+        },
+        {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs/778",
+                    "action": "GET"
+                }
+            ],
+            "details": null,
+            "jobId": 778,
+            "jobStatus": "FAILED",
+            "logFileName": "/u03/inbox/outbox/logs/UCPLAN_778.log",
+            "outputFileName": null,
+            "processType": "COMM_LOAD_BALANCES",
+            "executedBy": "hapotdar@hcg.com"
+        },
+        {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs/777",
+                    "action": "GET"
+                }
+            ],
+            "details": null,
+            "jobId": 777,
+            "jobStatus": "SUCCESS",
+            "logFileName": "/u03/inbox/outbox/logs/DIM_UCPLAN - Smartlist_777.log",
+            "outputFileName": null,
+            "processType": "COMM_LOAD_BALANCES",
+            "executedBy": "hapotdar@hcg.com"
+        },
+        {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs/776",
+                    "action": "GET"
+                }
+            ],
+            "details": null,
+            "jobId": 776,
+            "jobStatus": "SUCCESS",
+            "logFileName": "/u03/inbox/outbox/logs/DIM_UCPLAN - Smartlist_776.log",
+            "outputFileName": null,
+            "processType": "COMM_LOAD_BALANCES",
+            "executedBy": "hapotdar@hcg.com"
+        },
+        {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs/775",
+                    "action": "GET"
+                }
+            ],
+            "details": null,
+            "jobId": 775,
+            "jobStatus": "SUCCESS",
+            "logFileName": "/u03/inbox/outbox/logs/DIM_UCPLAN - Smartlist_775.log",
+            "outputFileName": null,
+            "processType": "COMM_LOAD_BALANCES",
+            "executedBy": "hapotdar@hcg.com"
+        },
+        {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs/774",
+                    "action": "GET"
+                }
+            ],
+            "details": null,
+            "jobId": 774,
+            "jobStatus": "FAILED",
+            "logFileName": "/u03/inbox/outbox/logs/DIM_UCPLAN - Smartlist_774.log",
+            "outputFileName": null,
+            "processType": "COMM_LOAD_BALANCES",
+            "executedBy": "hapotdar@hcg.com"
+        },
+        {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs/773",
+                    "action": "GET"
+                }
+            ],
+            "details": null,
+            "jobId": 773,
+            "jobStatus": "FAILED",
+            "logFileName": "/u03/inbox/outbox/logs/DIM_UCPLAN - Smartlist_773.log",
+            "outputFileName": null,
+            "processType": "COMM_LOAD_BALANCES",
+            "executedBy": "hapotdar@hcg.com"
+        },
+        {
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs/772",
+                    "action": "GET"
+                }
+            ],
+            "details": null,
+            "jobId": 772,
+            "jobStatus": "SUCCESS",
+            "logFileName": "/u03/inbox/outbox/logs/DIM_UCPLAN - Smartlist_772.log",
+            "outputFileName": null,
+            "processType": "COMM_LOAD_BALANCES",
+            "executedBy": "hapotdar@hcg.com"
+        }
+    ],
+    "pageNumber": 1,
+    "totalResults": 261,
+    "limit": 10,
+    "count": 261,
+    "offset": 1,
+    "hasMore": true,
+    "status": 0,
+    "links": [
+        {
+            "rel": "self",
+            "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs",
+            "action": "GET"
+        }
+    ]
+}

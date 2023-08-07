@@ -1,0 +1,11 @@
+keystore:
+  password: "![PTXbRJUdYxs1ENQnWjyYIQ==]"
+  
+https:
+  private:
+    port: "8092"   
+
+epm:
+  password: "![L1wbTo5Xkkz0Ia8IqMCZU8sixEtVSUVeK43+FTDEvUY=]"
+
+                                                         

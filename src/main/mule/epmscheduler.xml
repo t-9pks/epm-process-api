@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:compression="http://www.mulesoft.org/schema/mule/compression" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/compression http://www.mulesoft.org/schema/mule/compression/current/mule-compression.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="7feb057e-42a0-4de8-80e3-088c3aebcdd8" >
+		<http:request-connection protocol="HTTPS" host="${epm.host}" port="${epm.port}">
+			<http:authentication >
+				<http:basic-authentication username="${epm.username}" password="${secure::epm.password}" />
+			</http:authentication>
+		</http:request-connection>
+	</http:request-config>
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="6833869e-9cd1-44d1-99ec-0d3bc8964238" >
+		<email:smtp-connection host="${smtp.uChicagoHost}" port="${smtp.uChicagoPort}" connectionTimeout="${smtp.timeout}" readTimeout="20" writeTimeout="20"/>
+	</email:smtp-config>
+	<os:object-store name="substitutedata" doc:name="Object store" doc:id="6e753668-d5de-49dc-b1d8-48f95d2a2fe9" expirationInterval="8" expirationIntervalUnit="HOURS" />
+	<flow name="epmFlow" doc:id="6ee002e7-481a-4866-b2d0-e5a30b96c062" >
+<!-- [STUDIO:"Scheduler"]		<scheduler doc:name="Scheduler" doc:id="0185238e-8ca4-4c72-98c4-8fb2e0519230" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="2" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler> [STUDIO] -->
+		<http:request method="GET" doc:name="get substitutionvariables" doc:id="d8105d7f-84b7-4578-b881-92eee56e2d6e" config-ref="HTTP_Request_configuration" responseTimeout="${retry.interval}" path="${epm.substitutepath}" target="substitutevar">
+			<reconnect />
+		</http:request>
+		<foreach doc:name="For Each" doc:id="a3999a80-df2e-4718-926e-97896815582e" collection="#[p('epm.ruleset') splitBy &quot;,&quot;]">
+						<set-variable value="#[payload]" doc:name="set ruleset" doc:id="9cc60f74-636c-4566-96f9-a711f088cab2" variableName="ruleset" />
+			<foreach doc:name="For Each" doc:id="cf50ebf1-cd84-4951-a4f4-fc61c8e8c10f" collection="#[vars.substitutevar.items]">
+			<choice doc:name="Choice" doc:id="072eb883-8da4-4840-a377-ab8bd0312bed">
+				<when expression='#[payload.name=="CurrentYear"]'>
+					<logger level="INFO" doc:name="Logger" doc:id="b0e8e2f5-caab-4400-b47d-6960f6d85426" message="#[payload.name]" />
+					<ee:transform doc:name="set periods" doc:id="c2722d02-8919-40ff-b383-08b9bc196c2f">
+						<ee:message>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="startperiod"><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/json
+---
+"Jul-" ++ ((payload.value last 2)-1)]]></ee:set-variable>
+							<ee:set-variable variableName="endperiod"><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/json
+---
+"Jun-" ++ (payload.value last 2)]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+						<choice doc:name="Choice" doc:id="ebb923da-02e5-4d95-870a-a1e052cacd3d">
+							<when expression='#[vars.ruleset == "DLR_GL_UCPLAN"]'>
+								<ee:transform doc:name="run1" doc:id="8593ff3c-433a-45af-b46c-5527dd44a2f4">
+							<ee:message>
+							</ee:message>
+									<ee:variables >
+										<ee:set-variable variableName="run1" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"run1": {
+      "jobid": "",
+      "status": "",
+      "runid": "run1",
+      "inputset": {
+        "jobType": "DATARULE",
+        "jobName": vars.ruleset,
+        "startPeriod": vars.startperiod,
+        "endPeriod": vars.endperiod,
+        "importMode": "Replace",
+        "exportMode": "None"
+      }
+      
+      }
+  }]]></ee:set-variable>
+									</ee:variables>
+						</ee:transform>
+							</when>
+							<otherwise >
+								<ee:transform doc:name="run3" doc:id="106a064e-5ce8-48a4-9ba0-b392ea4608f3">
+									<ee:message>
+									</ee:message>
+									<ee:variables >
+										<ee:set-variable variableName="run3" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"run": {
+      "jobid": "",
+      "status": "",
+      "runid": "run3",      
+      "inputset": {
+        "jobType": "DATARULE",
+        "jobName": vars.ruleset,
+        "startPeriod": vars.startperiod,
+        "endPeriod": vars.endperiod,
+        "importMode": "Replace",
+        "exportMode": "None"
+      }
+
+
+}
+  }]]></ee:set-variable>
+									</ee:variables>
+								</ee:transform>
+							</otherwise>
+						</choice>
+				</when>
+				<when expression='#[payload.name=="PriorYear"]'>
+					<logger level="INFO" doc:name="Logger" doc:id="87c9de39-d2b0-4f4f-99d1-ea1f48c44c4e" message="#[payload.name]" />
+					<ee:transform doc:name="set periods" doc:id="49850d7d-e343-4a47-b3a9-a889e0bcf78c">
+						<ee:message />
+						<ee:variables>
+							<ee:set-variable variableName="startperiod"><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/json
+---
+"Jun-" ++ (payload.value last 2)]]></ee:set-variable>
+							<ee:set-variable variableName="endperiod"><![CDATA[%dw 2.0
+import * from dw::core::Strings
+output application/json
+---
+"Jun-" ++ (payload.value last 2)]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+						<choice doc:name="Choice" doc:id="523f9d47-923c-4774-addb-59cb35ecedc8">
+							<when expression='#[vars.ruleset == "DLR_GL_UCPLAN_BS"]'>
+								<ee:transform doc:name="run4" doc:id="9521aedc-c10d-420a-9c1d-12f06bad1b20">
+							<ee:message>
+							</ee:message>
+									<ee:variables >
+										<ee:set-variable variableName="run4" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"run": {
+      "jobid": "",
+      "status": "",
+      "runid": "run4",      
+      "inputset": {
+        "jobType": "DATARULE",
+        "jobName": vars.ruleset,
+        "startPeriod": vars.startperiod,
+        "endPeriod": vars.endperiod,
+        "importMode": "Replace",
+        "exportMode": "None"
+      }
+      
+      }
+  }]]></ee:set-variable>
+									</ee:variables>
+						</ee:transform>
+							</when>
+							<otherwise >
+								<ee:transform doc:name="run2" doc:id="005b9a71-9f5b-45fb-80d9-715e90f1f73f" >
+									<ee:message >
+									</ee:message>
+									<ee:variables >
+										<ee:set-variable variableName="run2" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"run": {
+      "jobid": "",
+      "status": "",
+      "runid": "run2",      
+      "inputset": {
+        "jobType": "DATARULE",
+        "jobName": vars.ruleset,
+        "startPeriod": vars.startperiod,
+        "endPeriod": vars.endperiod,
+        "importMode": "Replace",
+        "exportMode": "None"
+      }
+      
+      }
+  }]]></ee:set-variable>
+									</ee:variables>
+								</ee:transform>
+							</otherwise>
+						</choice>
+				</when>
+					<otherwise>
+					<logger level="INFO" doc:name="Logger" doc:id="27edc6ba-dff3-4aba-bedb-ef100d57b100" />
+				</otherwise>
+			</choice>
+		</foreach>
+					</foreach>
+		<ee:transform doc:name="final Payload" doc:id="70dda95e-c18a-44b4-bcd5-0b09e597a88d">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+(vars.run1 ++ vars.run2 ++ vars.run3 ++ vars.run4) pluck $]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f335ae19-58ec-4fd1-966c-e8be7fe633e1" message="#[payload]"/>
+		<os:store doc:name="push to object store" doc:id="af6b30d1-9119-445f-91a8-a81100a67d8e" key="epm" objectStore="substitutedata"/>
+	</flow>
+	<flow name="epmFlow1" doc:id="62d49e72-6486-4922-8840-ba9b0fecf62f" >
+		<scheduler doc:name="Scheduler" doc:id="4220c7ab-0a0a-43ae-8bcc-f47d681fdda0" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="5" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+<!-- [STUDIO:"Retrieve"]		<os:retrieve doc:name="Retrieve" doc:id="79617649-6c00-4388-8c6c-94470fb31493" key="epm" objectStore="substitutedata"/> [STUDIO] -->
+		<os:retrieve-all doc:name="retrieve epm data" doc:id="03379e44-f2af-47c4-8dd5-5bf90122a766" objectStore="substitutedata"/>
+		<choice doc:name="Choice" doc:id="482bea44-5bfa-4e0e-a03a-0b9b3dfec222" >
+			<when expression="#[sizeOf(payload)&gt;0]">
+<!-- [STUDIO:"payload"]				<set-variable value="#[payload]" doc:name="payload" doc:id="d7998e82-9d80-4ea8-b2da-fceee41df84c" variableName="initialdata" /> [STUDIO] -->
+				<ee:transform doc:name="Transform Message" doc:id="7234005e-993b-47e0-93a0-31cbc6c2427e">
+					<ee:message>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="initialdata" ><![CDATA[payload[0]]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="d79208e4-c46e-44a1-b296-8ddd7287f9d5" message="payload retrieved from object store" />
+				<try doc:name="Try" doc:id="a0afaf7e-1e67-4c95-a3ff-aa238816082f">
+			<foreach doc:name="For Each" doc:id="94129218-36c3-493e-bce9-1cd61a7b8bf7">
+			<set-variable value="#[payload]" doc:name="set run" doc:id="33ccd18b-1944-46c6-9aea-b53048b3a194" variableName="runid" />
+						<choice doc:name="Choice" doc:id="fea74878-b22f-4965-800c-2ee1f69403a8">
+					<when expression='#[vars.runid.status =="SUCCESS" or vars.runid.status =="ERROR" or vars.runid.status == "WARNING"]'>
+						<logger level="INFO" doc:name="Logger" doc:id="a3c00d57-8918-4e54-b4cc-3c575864cf0f" message="no data to process" />
+					</when>
+					<otherwise>
+						<ee:transform doc:name="jobId" doc:id="a094c5b4-b6e7-4f3c-98e1-2d29ec430306">
+					<ee:message>
+					</ee:message>
+					<ee:variables>
+						<ee:set-variable variableName="jobs"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"jobId": vars.runid.jobid
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+						<logger level="INFO" doc:name="Logger" doc:id="1b9b5e17-003c-4550-b029-ade958a5440a" message="#[payload]" />
+						<choice doc:name="Choice" doc:id="778932c1-adbe-4c10-903e-2398363b11ee">
+				<when expression='#[(vars.runid.jobid != null or vars.runid.jobid != "") and (vars.runid.status=="RUNNING")]'>
+						<flow-ref doc:name="getjobstatus" doc:id="5281edc9-9a11-45e3-a111-43fa0e637435" name="Jobstatuscheck" />
+					</when>
+					<otherwise>
+					<ee:transform doc:name="payload fo job create" doc:id="44180234-47eb-4e5d-97c0-d3d67875552f">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.inputset]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<http:request method="POST" doc:name="Create jobs for current year" doc:id="74dbefce-e335-4ac3-a148-29e88e2c0486" config-ref="HTTP_Request_configuration" path="${epm.jobspath}" responseTimeout="${retry.interval}" target="jobs">
+			<reconnect />
+		</http:request>
+					<logger level="INFO" doc:name="Logger" doc:id="0c9fc281-c82a-4821-aeeb-56ae6aacb2ef" message="#[vars.jobs]" />
+					<flow-ref doc:name="getjobstatus" doc:id="d46f088c-2eb9-4fc4-97b7-20213ab558a7" name="Jobstatuscheck" />
+				</otherwise>
+			</choice>
+						<os:store doc:name="repush to object store for success/failure" doc:id="2dbc0613-32a6-4626-9021-8f4a23ab7730" key="epm" objectStore="substitutedata" />
+					</otherwise>
+				</choice>
+		</foreach>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="45b7e229-9780-4baf-ad9f-7fb2200577b9" type="JOBSTATUS:JOB_RUNNING">
+					<os:store doc:name="Store" doc:id="942d6ea9-106e-49fb-aa37-50b06f221ead" key="epm" objectStore="substitutedata" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="9d67b725-9352-48d5-ad05-1d9ebd0cfc3b" message="No data to process" />
+			</otherwise>
+		</choice>
+	</flow>
+	<sub-flow name="Jobstatuscheck" doc:id="a91a9fc4-53c8-4cdd-bebc-363ad538e2ee" >
+		<http:request method="GET" doc:name="get jobs status" doc:id="9a932162-6c18-4fc4-943e-c9893bfb3b2c" config-ref="HTTP_Request_configuration" path="${epm.jobspath}/{jobid}" responseTimeout="${retry.interval}" >
+			<reconnect />
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	jobid : vars.jobs.jobId
+}]]]></http:uri-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="ece49df9-29de-47f7-81ee-3843949d571f">
+			<when expression='#[payload.jobStatus=="SUCCESS"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="a72ea1e3-4c8e-4e33-a13b-c78f9d5ae4fa" message='"CURRENT YEAR SUCCESS"' />
+				<ee:transform doc:name="update job id and status" doc:id="9cc25730-bb7e-453b-9a50-896f762e9649">
+					<ee:message />
+					<ee:variables>
+						<ee:set-variable variableName="jobStatus"><![CDATA[payload.jobStatus]]></ee:set-variable>
+						<ee:set-variable variableName="updatejobid" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"runid": vars.runid.runid,
+	"jobId":payload.jobId,
+	"jobStatus": payload.jobStatus
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<ee:transform doc:name="filecontent" doc:id="888efbce-e170-444e-b3c5-be7abb3b5c11">
+					<ee:message />
+					<ee:variables>
+						<ee:set-variable variableName="fromAddress"><![CDATA[%dw 2.0
+output application/java
+---
+p('smtp.fromAddress')]]></ee:set-variable>
+						<ee:set-variable variableName="toAddress"><![CDATA[%dw 2.0
+output application/java
+---
+p('smtp.toAddress')]]></ee:set-variable>
+						<ee:set-variable variableName="subject"><![CDATA[%dw 2.0
+output application/java
+---
+p('smtp.subject') ++ vars.runid.inputset.jobName ++ (if (vars.runid.runid == "run1" or vars.runid.runid == "run3") " :Current Year" else " :Prior Year")]]></ee:set-variable>
+						<ee:set-variable variableName="body"><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"StartPeriod": vars.runid.inputset.startPeriod,
+	"EndPeriod" : vars.runid.inputset.endPeriod,
+	"Status": vars.updatejobid.jobStatus,
+	"jobId": vars.updatejobid.jobId
+}
+]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<parse-template doc:name="Parse Template" doc:id="2361501f-bd15-40d3-97d5-d418ff241a5f" location="EmailBodytemplate.html"/>
+				<ee:transform doc:name="Transform Message" doc:id="d97d43b0-9cf0-4cca-8c2a-676c0f7b10c6">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java 
+---
+payload replace '"' with ""]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<email:send doc:name="Send1" doc:id="a5b3908d-3b53-4917-a076-cd6f48f1dd96" config-ref="Email_SMTP" fromAddress="#[vars.fromAddress]" subject="#[vars.subject]">
+					<email:to-addresses>
+						<email:to-address value="#[vars.toAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/html" encoding="UTF-8">
+					</email:body>
+				</email:send>
+				<ee:transform doc:name="reprepare payload for object store" doc:id="d615feea-d133-4404-a137-bef4b25cf8f9">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+vars.initialdata map
+{
+    
+      "jobid": if($.runid == vars.updatejobid.runid) vars.updatejobid.jobId else $.jobid,
+      "status": if($.runid == vars.updatejobid.runid) vars.updatejobid.jobStatus else $.status,
+      "runid": if($.runid == vars.updatejobid.runid) vars.updatejobid.runid else $.runid,
+            "inputset": {
+                "jobType": $.inputset.jobType,
+                        "jobName":  $.inputset.jobName,
+        "startPeriod": $.inputset.startPeriod,
+        "endPeriod": $.inputset.endPeriod,
+        "importMode": $.inputset.importMode,
+        "exportMode": $.inputset.exportMode
+            }
+
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<set-variable value="#[payload]" doc:name="payload" doc:id="682ab837-74bd-440a-96d0-989b0339e1e9" variableName="initialdata" />
+			</when>
+			<when expression='#[payload.jobStatus=="RUNNING"]'>
+				<logger level="INFO" doc:name="Logger" doc:id="57d900de-b841-46a3-8389-0215dcd64890" />
+				<ee:transform doc:name="update job id and status" doc:id="109442db-8581-42f8-be14-a55a15b745b4" >
+					<ee:message />
+					<ee:variables >
+						<ee:set-variable variableName="updatejobid" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"runid": vars.runid.runid,
+	"jobId":payload.jobId,
+	"jobStatus": payload.jobStatus
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<ee:transform doc:name="reprepare payload for object store" doc:id="3e4d9369-1a18-4e80-876f-da2e47f27f67">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+vars.initialdata map
+{
+    
+      "jobid": if($.runid == vars.updatejobid.runid) vars.updatejobid.jobId else $.jobid,
+      "status": if($.runid == vars.updatejobid.runid) vars.updatejobid.jobStatus else $.status,
+      "runid": if($.runid == vars.updatejobid.runid) vars.updatejobid.runid else $.runid,
+            "inputset": {
+                "jobType": $.inputset.jobType,
+                        "jobName":  $.inputset.jobName,
+        "startPeriod": $.inputset.startPeriod,
+        "endPeriod": $.inputset.endPeriod,
+        "importMode": $.inputset.importMode,
+        "exportMode": $.inputset.exportMode
+            }
+
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<set-variable value="#[payload]" doc:name="payload" doc:id="89db7869-94cb-4bcd-b817-5b40087d1094" variableName="initialdata" />
+				<raise-error doc:name="Raise error" doc:id="b097ec5b-81cc-4c94-bfd1-26f566e0d242" type="JOBSTATUS:JOB_RUNNING"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="be4f627a-ef00-4612-89f4-aa8fdcd1927d" message='"CURRENT YEAR FAILURE"' />
+				<ee:transform doc:name="update job id and status" doc:id="3364cf2e-34dc-48ee-86a6-3dae2b1ae8fd">
+					<ee:message>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="updatejobid" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"runid": vars.runid.runid,
+	"jobId":payload.jobId,
+	"jobStatus": payload.jobStatus
+}]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<set-variable value='#[payload.logFileName replace "/" with "%5C"]' doc:name="logfile" doc:id="29156d01-cc4a-4031-8a32-eba42dcd7ece" variableName="logfile"/>
+				<http:request method="GET" doc:name="get logs" doc:id="23ecabc0-72c2-4be2-aa1b-d48b41cff297" config-ref="HTTP_Request_configuration" path="${epm.logspath}/{logname}/contents" responseTimeout="${retry.interval}" sendBodyMode="NEVER">
+			<reconnect />
+			<http:uri-params><![CDATA[#[output application/java
+---
+{
+	logname : vars.logfile
+}]]]></http:uri-params>
+		</http:request>
+				<logger level="INFO" doc:name="Logger" doc:id="7ff95ddf-ac7e-48c1-ab60-2d8d2ce335b5" message="#[payload]" />
+				<compression:archive doc:name="Archive" doc:id="097251f1-27d8-4f1c-9301-a9bec6655028">
+					<compression:entries ><![CDATA[#[{
+    '$(vars.updatejobid.jobId) ++ "_log.txt"': payload default ""
+}]]]></compression:entries>
+					<compression:archiver>
+						<compression:zip-archiver />
+					</compression:archiver>
+				</compression:archive>
+				<ee:transform doc:name="filecontent" doc:id="7f95f545-3e7c-422e-bef0-4853637db84a">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+						<ee:set-variable variableName="filename" ><![CDATA[%dw 2.0
+output application/java
+---
+vars.updatejobid.jobId ++ "_log.zip"]]></ee:set-variable>
+						<ee:set-variable variableName="attachments" ><![CDATA[payload]]></ee:set-variable>
+						<ee:set-variable variableName="fromAddress" ><![CDATA[%dw 2.0
+output application/java
+---
+p('smtp.fromAddress')]]></ee:set-variable>
+						<ee:set-variable variableName="toAddress" ><![CDATA[%dw 2.0
+output application/java
+---
+p('smtp.toAddress')]]></ee:set-variable>
+						<ee:set-variable variableName="subject" ><![CDATA[%dw 2.0
+output application/java
+---
+p('smtp.subject') ++ vars.runid.inputset.jobName ++ (if (vars.runid.runid == "run1" or vars.runid.runid == "run3") " :Current Year" else " :Prior Year")]]></ee:set-variable>
+						<ee:set-variable variableName="body" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"StartPeriod": vars.runid.inputset.startPeriod,
+	"EndPeriod" : vars.runid.inputset.endPeriod,
+	"Status": vars.updatejobid.jobStatus,
+	"jobId": vars.updatejobid.jobId
+}
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+				<parse-template doc:name="Parse Template" doc:id="233d3103-4f09-49cb-bce6-9b9687e0180c" location="EmailBodytemplate.html"/>
+				<ee:transform doc:name="Transform Message" doc:id="94b24497-4170-408c-a8ba-9c9a09cb3b5b">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/java 
+---
+payload replace '"' with ""]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<email:send doc:name="Send" doc:id="4a33c143-36bd-4881-bd39-01ce19fb1534" config-ref="Email_SMTP" fromAddress="#[vars.fromAddress]" subject='#[vars.subject]'>
+					<email:to-addresses >
+						<email:to-address value="#[vars.toAddress]" />
+					</email:to-addresses>
+					<email:body contentType="text/html" encoding="UTF-8">
+					</email:body>
+					<email:attachments ><![CDATA[#[{
+    '$(vars.filename)': vars.attachments default ""
+}]]]></email:attachments>
+				</email:send>
+				<!-- [STUDIO:"Send"]				<email:send doc:name="Send" doc:id="4655b54f-2924-423f-8d6f-1b4ce1b6c022" toAddresses='t-9pks@uchicago.edu' config-ref="Email_SMTP" fromAddress="${smtp.fromAddress}" subject='"test email warning"'>
+			<email:body contentType="text/plain" >
+						<email:content ><![CDATA[#["test email body"]]]></email:content>
+					</email:body>
+					<email:attachments><![CDATA[#[{
+    '$(vars.filename)': vars.attachments
+}]]]></email:attachments>
+		</email:send> [STUDIO] -->
+				<ee:transform doc:name="reprepare payload for object store" doc:id="360aaa4b-8d75-4082-9c5a-39c713d347e4">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+vars.initialdata map
+{
+    
+      "jobid": if($.runid == vars.updatejobid.runid) vars.updatejobid.jobId else $.jobid,
+      "status": if($.runid == vars.updatejobid.runid) vars.updatejobid.jobStatus else $.status,
+      "runid": if($.runid == vars.updatejobid.runid) vars.updatejobid.runid else $.runid,
+            "inputset": {
+                "jobType": $.inputset.jobType,
+                        "jobName":  $.inputset.jobName,
+        "startPeriod": $.inputset.startPeriod,
+        "endPeriod": $.inputset.endPeriod,
+        "importMode": $.inputset.importMode,
+        "exportMode": $.inputset.exportMode
+            }
+
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<set-variable value="#[payload]" doc:name="payload" doc:id="24eb4ca3-3f87-4cfb-98fc-71c4895cad0e" variableName="initialdata"/>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="b38d5c54-7ac1-4700-9389-64aba4f9ae4c" message="#[payload]"/>
+	</sub-flow>
+</mule>

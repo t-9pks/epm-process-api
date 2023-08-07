@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+ <head>
+    <title>Page Title</title>
+    <style>
+      p {
+        padding: 0px;
+        margin: 0px;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <div style="padding-left:1px"><p>Hello All,</p><div><br>
+    <div style="padding-left:10px">
+    <style>
+      table, th, td {
+        border:1px solid black;
+        border-collapse: collapse;
+         }
+    </style>
+      <p>Below is the status of Data Load.</p>
+      <br>
+<table style="width:30%">
+  <tr>
+    <th>JOB ID</th>  
+    <th>START PERIOD</th>
+    <th>END PERIOD</th>
+    <th>STATUS</th>	
+  </tr>
+  <tr>
+    <td>#[vars.body.jobId]</td>  
+    <td>#[vars.body.StartPeriod]</td>
+    <td>#[vars.body.EndPeriod]</td>
+    <td>#[vars.body.Status]</td>	
+  </tr>
+  <br>
+  </table>
+  </body>
+</html>

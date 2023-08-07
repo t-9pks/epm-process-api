@@ -1,0 +1,22 @@
+#%RAML 1.0
+title: epm-process-api  
+version: v1
+baseUri: http://{host}:{port}/epm-process-api/{version}/*
+protocols: [http, https]
+traits:
+  client-id-required:
+    headers:
+      client_id:
+        type: string
+        description: client Id provided by API Manager
+        required: true
+      client_secret:
+        type: string
+/health:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {"message": "API health working fine"}

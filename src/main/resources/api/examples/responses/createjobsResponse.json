@@ -1,0 +1,17 @@
+{
+    "links": [
+        {
+            "rel": "self",
+            "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs/782",
+            "action": "GET"
+        }
+    ],
+    "status": -1,
+    "details": null,
+    "jobId": 782,
+    "jobStatus": "RUNNING",
+    "logFileName": "outbox/logs/UCPLAN_782.log",
+    "outputFileName": null,
+    "processType": "COMM_LOAD_BALANCES",
+    "executedBy": ""
+}

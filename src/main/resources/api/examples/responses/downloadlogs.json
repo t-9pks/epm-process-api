@@ -1,0 +1,17 @@
+{
+    "links": [
+        {
+            "rel": "self",
+            "href": "https://uchicagoepbcs-test-uchi.epm.us-phoenix-1.ocs.oraclecloud.com:443/aif/rest/V1/jobs/772",
+            "action": "GET"
+        }
+    ],
+    "status": 0,
+    "details": null,
+    "jobId": 772,
+    "jobStatus": "SUCCESS",
+    "logFileName": "outbox/logs/DIM_UCPLAN - Smartlist_772.log",
+    "outputFileName": null,
+    "processType": "COMM_LOAD_BALANCES",
+    "executedBy": "hapotdar@hcg.com"
+}

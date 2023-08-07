@@ -1,0 +1,21 @@
+api:
+  id: ""
+# process API authentication details
+client:
+  id: ''
+  secret: ''
+ 
+prc:
+  http:
+    host: ""
+    port: "443"
+    basePath: "/"
+    path: "/"
+
+oracleBIReport:
+  timeout: "60000"
+  path: "/concurExpenses" 
+  clientId: '0e8dcc0a74b24e63b9395be47f58ac22'
+  host: "itsapi-dev.uchicago.edu"
+  basePath: "prc/oracle-bi-rpt/v1/api"
+
